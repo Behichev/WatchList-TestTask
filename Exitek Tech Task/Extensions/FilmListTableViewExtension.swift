@@ -7,16 +7,67 @@
 
 import Foundation
 import UIKit
+import CoreData
 
-extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+extension MainViewController: UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        testArray.count
+        if let sections = fetchResultController.sections {
+            return sections[section].numberOfObjects
+        } else {
+            return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        let item = testArray[indexPath.row]
-        cell.textLabel?.text = item.filmTitle! + " (\(String(item.filmReleaseData)))"
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.cellName, for: indexPath) as UITableViewCell
+        let movie = fetchResultController.object(at: indexPath) as! Movies
+        cell.textLabel?.text = movie.filmTitle
+        cell.detailTextLabel?.text = String(movie.filmReleaseData)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let movie = fetchResultController.object(at: indexPath) as! Movies
+            CoreDataManger.instance.context.delete(movie)
+            CoreDataManger.instance.saveContext()
+        }
+    }
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        filmsListTableView.beginUpdates()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            if let indexPath = newIndexPath {
+                filmsListTableView.insertRows(at: [indexPath], with: .automatic)
+            }
+        case .delete:
+            if let indexPath = indexPath {
+                filmsListTableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+        case .move:
+            if let indexPath = indexPath {
+                filmsListTableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            if let indexPath = newIndexPath {
+                filmsListTableView.insertRows(at: [indexPath], with: .automatic)
+            }
+        case .update:
+            if let indexPath = indexPath {
+                let movie = fetchResultController.object(at: indexPath) as! Movies
+                let cell = filmsListTableView.cellForRow(at: indexPath)
+                cell?.textLabel?.text = movie.filmTitle
+                cell?.detailTextLabel?.text = String(movie.filmReleaseData)
+            }
+        default:
+            break
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        filmsListTableView.endUpdates()
     }
 }

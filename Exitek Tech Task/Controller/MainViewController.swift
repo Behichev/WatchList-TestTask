@@ -9,20 +9,45 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController {
-    var testArray: [Movies] = []
-    var filmTitle: String?
-    var releaseDate: Int?
+
     //MARK: - Outlets
     @IBOutlet weak var filmNameTextField: UITextField!
     @IBOutlet weak var filmReleaseYearTextField: UITextField!
     @IBOutlet weak var filmAddButton: UIButton!
     @IBOutlet weak var filmsListTableView: UITableView!
     
+    var movie: Movies?
+    
+    struct Constants {
+        static let entity = "Movies"
+        static let sortName = "filmTitle"
+        static let cellName = "Cell"
+    }
+    
+    var fetchResultController: NSFetchedResultsController<NSFetchRequestResult> = {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.entity)
+        let sortDescripter = NSSortDescriptor(key: Constants.sortName, ascending: true)
+        fetchRequest.sortDescriptors = [sortDescripter]
+        let fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataManger.instance.context, sectionNameKeyPath: nil, cacheName: nil)
+        return fetchedResultController
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTextFields()
         configureFilmListTableView()
         hideKeyboardWhenTappedAround()
+        
+        do {
+            try fetchResultController.performFetch()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func textReset() {
+        filmNameTextField.text = ""
+        filmReleaseYearTextField.text = ""
     }
     
     private func configureTextFields() {
@@ -33,6 +58,7 @@ class MainViewController: UIViewController {
     private func configureFilmListTableView() {
         filmsListTableView.delegate = self
         filmsListTableView.dataSource = self
+        fetchResultController.delegate = self
     }
     
     private func hideKeyboardWhenTappedAround() {
@@ -41,51 +67,63 @@ class MainViewController: UIViewController {
         view.addGestureRecognizer(tap)
     }
     
+    func saveMovie() -> Bool {
+        if filmNameTextField.text!.isEmpty || filmReleaseYearTextField.text!.isEmpty {
+            showNotFieldAreFilledAlert()
+            return false
+        }
+        
+        do {
+            let results = try CoreDataManger.instance.context.fetch(fetchResultController.fetchRequest)
+            for result in results as! [Movies] {
+                if result.filmTitle == filmNameTextField.text {
+                    showAlereadySavedAlert()
+                    textReset()
+                    return false
+                }
+            }
+        } catch {
+            print(error)
+        }
+        
+        if movie == nil {
+            movie = Movies()
+        }
+
+        if let movie = movie {
+            movie.filmTitle = filmNameTextField.text?.capitalized
+            movie.filmReleaseData = Int16(filmReleaseYearTextField.text?.capitalized ?? "0") ?? 0
+            CoreDataManger.instance.saveContext()
+            textReset()
+        }
+        return true
+        
+    }
+    
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
     
-    func showAlert() {
-        let alert = UIAlertController(title: "Error", message: "Not all data is complete", preferredStyle: .alert)
+    func showNotFieldAreFilledAlert() {
+        let alert = UIAlertController(title: "Error", message: "Not all fields are filled", preferredStyle: .alert)
         let alertAction = UIAlertAction(title: "Okay", style: .default)
         alert.addAction(alertAction)
         present(alert, animated: true)
     }
     
+    func showAlereadySavedAlert() {
+        let alert = UIAlertController(title: "Error", message: "You have already saved this movie", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Okay", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
+    }
+    
     @IBAction func buttonTapped() {
-        if let textFromNameTextField = filmNameTextField.text {
-            if filmNameTextField.text != "" {
-                self.filmTitle = textFromNameTextField.capitalized
-                managedObject.setValue(textFromNameTextField, forKey: "filmTitle")
-            } else if filmNameTextField.text == "" || filmReleaseYearTextField.text == "" {
-                showAlert()
-            }
-            
-            if let textFormReleaseYearTextField = filmReleaseYearTextField.text {
-                if filmReleaseYearTextField.text != "" {
-                    self.releaseDate = Int(textFormReleaseYearTextField)
-                    managedObject.setValue(textFormReleaseYearTextField, forKey: "filmReleaseData")
-                } else if filmNameTextField.text == "" || filmReleaseYearTextField.text == "" {
-                    showAlert()
-                }
-            }
-            
-            if releaseDate != nil && filmTitle != nil {
-                let test = managedObject.value(forKey: "filmTitle")
-                let testOne = managedObject.value(forKey: "filmReleaseData")
-                if testArray.contains(test) {
-                    let alert = UIAlertController(title: "Error", message: "You have already added this movie", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "Okay", style: .default))
-                    present(alert, animated: true)
-                } else {
-                    print("\(test),\(testOne)")
-                }
-                filmsListTableView.reloadData()
-                filmNameTextField.text = ""
-                filmReleaseYearTextField.text = ""
-                releaseDate = nil
-                filmTitle = nil
-            }
+        saveMovie()
+        do {
+            try fetchResultController.performFetch()
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
