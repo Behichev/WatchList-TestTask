@@ -44,6 +44,7 @@ class MainViewController: UIViewController {
     
     func createItem(title: String, year: String) {
         let newItem = Movies(context: CoreDataManger.instance.context)
+        
         newItem.filmTitle = title
         newItem.filmReleaseData = Int16(year) ?? 0
         
@@ -95,14 +96,19 @@ class MainViewController: UIViewController {
         }
         
         for model in models {
-            if model.filmTitle == filmNameTextField.text?.capitalized && Int16(filmReleaseYearTextField.text?.capitalized ?? "0") == model.filmReleaseData {
+            if (model.filmTitle?.contains(filmNameTextField.text!.capitalized))! {
                 showAlereadySavedAlert()
                 textReset()
                 return false
             }
         }
         
+        if filmNameTextField.text?.last == " " {
+            filmNameTextField.text?.removeLast()
+        }
+        
         createItem(title: filmNameTextField.text?.capitalized ?? "", year: filmReleaseYearTextField.text?.capitalized ?? "0")
+        
         textReset()
         return true
         
@@ -127,7 +133,7 @@ class MainViewController: UIViewController {
     }
     
     @IBAction func buttonTapped() {
-       saveMovie()
+        saveMovie()
     }
     
 }
