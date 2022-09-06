@@ -95,7 +95,7 @@ class MainViewController: UIViewController {
         }
         
         for model in models {
-            if model.filmTitle == filmNameTextField.text?.capitalized || Int16(filmReleaseYearTextField.text?.capitalized ?? "0") == model.filmReleaseData {
+            if model.filmTitle == filmNameTextField.text?.capitalized && Int16(filmReleaseYearTextField.text?.capitalized ?? "0") == model.filmReleaseData {
                 showAlereadySavedAlert()
                 textReset()
                 return false
