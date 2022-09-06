@@ -19,7 +19,6 @@
 		23D1D09A28C1EF38006913EF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 23D1D09828C1EF38006913EF /* LaunchScreen.storyboard */; };
 		23D1D0A228C1F26C006913EF /* FilmListTableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D1D0A128C1F26C006913EF /* FilmListTableViewExtension.swift */; };
 		23D1D0A528C1F81E006913EF /* FilmTextFieldsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D1D0A428C1F81E006913EF /* FilmTextFieldsExtension.swift */; };
-		23D1D0A728C21723006913EF /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D1D0A628C21723006913EF /* ArrayExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +36,6 @@
 		23D1D09B28C1EF38006913EF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		23D1D0A128C1F26C006913EF /* FilmListTableViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilmListTableViewExtension.swift; sourceTree = "<group>"; };
 		23D1D0A428C1F81E006913EF /* FilmTextFieldsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilmTextFieldsExtension.swift; sourceTree = "<group>"; };
-		23D1D0A628C21723006913EF /* ArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,7 +52,6 @@
 		2300A49328C22A7F00ABD95F /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				23D1D0A628C21723006913EF /* ArrayExtension.swift */,
 				23D1D0A128C1F26C006913EF /* FilmListTableViewExtension.swift */,
 				23D1D0A428C1F81E006913EF /* FilmTextFieldsExtension.swift */,
 			);
@@ -87,13 +84,6 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		235E0ED728C3D68A00F05E6C /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		23D1D07E28C1EF36006913EF = {
 			isa = PBXGroup;
 			children = (
@@ -117,7 +107,6 @@
 				235E0ED328C3D26200F05E6C /* Entity */,
 				23D1D08A28C1EF36006913EF /* AppDelegate.swift */,
 				23D1D08C28C1EF36006913EF /* SceneDelegate.swift */,
-				235E0ED728C3D68A00F05E6C /* New Group */,
 				2300A49428C22A9300ABD95F /* Controller */,
 				2300A49328C22A7F00ABD95F /* Extensions */,
 				23D1D0A328C1F2EF006913EF /* View */,
@@ -213,7 +202,6 @@
 				23D1D08F28C1EF36006913EF /* MainViewController.swift in Sources */,
 				23D1D08B28C1EF36006913EF /* AppDelegate.swift in Sources */,
 				235E0ED128C3D25200F05E6C /* Movies+CoreDataClass.swift in Sources */,
-				23D1D0A728C21723006913EF /* ArrayExtension.swift in Sources */,
 				23D1D0A528C1F81E006913EF /* FilmTextFieldsExtension.swift in Sources */,
 				235E0ED528C3D33200F05E6C /* CoreDataManager.swift in Sources */,
 				23D1D08D28C1EF36006913EF /* SceneDelegate.swift in Sources */,

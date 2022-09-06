@@ -9,38 +9,60 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController {
-
+    
     //MARK: - Outlets
     @IBOutlet weak var filmNameTextField: UITextField!
     @IBOutlet weak var filmReleaseYearTextField: UITextField!
     @IBOutlet weak var filmAddButton: UIButton!
     @IBOutlet weak var filmsListTableView: UITableView!
     
-    var movie: Movies?
+    var models = [Movies]()
     
     struct Constants {
         static let entity = "Movies"
-        static let sortName = "filmTitle"
         static let cellName = "Cell"
     }
-    
-    var fetchResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.entity)
-        let sortDescripter = NSSortDescriptor(key: Constants.sortName, ascending: true)
-        fetchRequest.sortDescriptors = [sortDescripter]
-        let fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataManger.instance.context, sectionNameKeyPath: nil, cacheName: nil)
-        return fetchedResultController
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTextFields()
         configureFilmListTableView()
         hideKeyboardWhenTappedAround()
+        getAllItems()
+    }
+    
+    func getAllItems() {
+        do {
+            models = try CoreDataManger.instance.context.fetch(Movies.fetchRequest())
+            DispatchQueue.main.async {
+                self.filmsListTableView.reloadData()
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func createItem(title: String, year: String) {
+        let newItem = Movies(context: CoreDataManger.instance.context)
+        newItem.filmTitle = title
+        newItem.filmReleaseData = Int16(year) ?? 0
         
         do {
-            try fetchResultController.performFetch()
+            try CoreDataManger.instance.context.save()
         } catch {
+            //error
+            print(error.localizedDescription)
+        }
+        getAllItems()
+    }
+    
+    func deleteItems(item: Movies) {
+        CoreDataManger.instance.context.delete(item)
+        getAllItems()
+        do {
+            try CoreDataManger.instance.context.save()
+        } catch {
+            //error
             print(error.localizedDescription)
         }
     }
@@ -58,7 +80,6 @@ class MainViewController: UIViewController {
     private func configureFilmListTableView() {
         filmsListTableView.delegate = self
         filmsListTableView.dataSource = self
-        fetchResultController.delegate = self
     }
     
     private func hideKeyboardWhenTappedAround() {
@@ -73,29 +94,16 @@ class MainViewController: UIViewController {
             return false
         }
         
-        do {
-            let results = try CoreDataManger.instance.context.fetch(fetchResultController.fetchRequest)
-            for result in results as! [Movies] {
-                if result.filmTitle == filmNameTextField.text {
-                    showAlereadySavedAlert()
-                    textReset()
-                    return false
-                }
+        for model in models {
+            if model.filmTitle == filmNameTextField.text?.capitalized || Int16(filmReleaseYearTextField.text?.capitalized ?? "0") == model.filmReleaseData {
+                showAlereadySavedAlert()
+                textReset()
+                return false
             }
-        } catch {
-            print(error)
         }
         
-        if movie == nil {
-            movie = Movies()
-        }
-
-        if let movie = movie {
-            movie.filmTitle = filmNameTextField.text?.capitalized
-            movie.filmReleaseData = Int16(filmReleaseYearTextField.text?.capitalized ?? "0") ?? 0
-            CoreDataManger.instance.saveContext()
-            textReset()
-        }
+        createItem(title: filmNameTextField.text?.capitalized ?? "", year: filmReleaseYearTextField.text?.capitalized ?? "0")
+        textReset()
         return true
         
     }
@@ -119,13 +127,7 @@ class MainViewController: UIViewController {
     }
     
     @IBAction func buttonTapped() {
-        saveMovie()
-        do {
-            try fetchResultController.performFetch()
-        } catch {
-            print(error.localizedDescription)
-        }
+       saveMovie()
     }
     
 }
-
