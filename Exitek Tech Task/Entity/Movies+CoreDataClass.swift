@@ -13,5 +13,6 @@ import CoreData
 public class Movies: NSManagedObject {
     convenience init() {
         self.init(entity: CoreDataManger.instance.entityForName(entityName: "Movies"), insertInto: CoreDataManger.instance.context)
+        CoreDataManger.instance.persistentContainer.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     }
 }
